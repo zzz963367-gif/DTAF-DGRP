@@ -1,9 +1,4 @@
-"""Task-adapted dot-product + additive scoring cross-attention.
-
-Scoring adapted from section 3.3.3 of Li et al., Neurocomputing 699
-(2026), 134342, doi:10.1016/j.neucom.2026.134342.
-Cell queries attend to drug atoms; no temporal windows or target labels.
-"""
+"""Score drug atoms for each cell-line query using dot-product and additive attention scores."""
 import torch
 from torch import nn
 from Model_MHA import MultiHeadAttentionLayer as OriginalAttention
