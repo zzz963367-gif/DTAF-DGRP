@@ -1,5 +1,4 @@
 {
-  "fold": 0,
   "graph": {
     "temperature": 0.06,
     "k_cell": 32,
@@ -15,15 +14,6 @@
   },
   "inner_seed": 20261024,
   "inner_folds": 5,
-  "training": {
-    "epochs": 100,
-    "batch_size": 64,
-    "lr": 1e-05,
-    "encoder_lr": 5e-06,
-    "seed": 14946934,
-    "patience": 25,
-    "heads": 8
-  },
   "environment": {
     "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1",
     "OMP_NUM_THREADS": "2",
@@ -36,6 +26,5 @@
     "SCGPT_LATENT_ABLATION": "0",
     "DTAF_ATOM_AGGREGATION": "transcriptome_attention",
     "RESUME_TRAINING_CHECKPOINT": "0"
-  },
-  "protocol": "Five train/validation partitions with a common test set; fixed archived parameters."
+  }
 }
