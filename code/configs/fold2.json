@@ -1,19 +1,9 @@
 {
   "fold": 2,
   "graph": {
-    "val_pcc": 0.9294013768807059,
-    "val_mse": 0.002018267521634698,
     "temperature": 0.06,
     "k_cell": 32,
-    "k_drug": 16,
-    "cell_response_weight": 1.0,
-    "drug_response_weight": 1.0,
-    "cell_mix": 0.25,
-    "cell_alpha": 0.4,
-    "drug_alpha": 0.5,
-    "iterations": 1,
-    "restart": 0.0,
-    "beta": 0.0
+    "k_drug": 16
   },
   "ratio": 0.3,
   "eta": 0.6,
