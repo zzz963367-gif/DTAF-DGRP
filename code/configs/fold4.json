@@ -15,7 +15,6 @@
   "inner_seed": 20261028,
   "inner_folds": 5,
   "environment": {
-    "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1",
     "OMP_NUM_THREADS": "2",
     "MKL_NUM_THREADS": "2",
     "MRNA_DENOISING_INPUT": "1",
@@ -23,8 +22,6 @@
     "MRNA_DENOISING_NOISE_STD": "0.005",
     "ZERO_MRNA_MODULE": "0",
     "USE_SCGPT_LATENT": "0",
-    "SCGPT_LATENT_ABLATION": "0",
-    "DTAF_ATOM_AGGREGATION": "transcriptome_attention",
-    "RESUME_TRAINING_CHECKPOINT": "0"
+    "DTAF_ATOM_AGGREGATION": "transcriptome_attention"
   }
 }
