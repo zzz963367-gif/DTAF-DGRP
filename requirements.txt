@@ -5,10 +5,5 @@ scikit-learn==1.6.1
 joblib==1.5.2
 torch==2.8.0+cu126
 torch-geometric==2.6.1
-rdkit==2025.9.2
 optuna==4.5.0
 threadpoolctl==3.6.0
-matplotlib==3.9.4
-Pillow==11.1.0
-tqdm==4.67.1
-psutil==7.0.0
