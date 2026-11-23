@@ -10,17 +10,17 @@ Accurate cancer drug response prediction can support treatment selection and imp
 
 ```text
 - data
-  - inputs.zip.001 to inputs.zip.009: Packaged inputs for training and evaluation.
-  - parts.json: Checksums for the nine archive parts.
-  - unpack.py: Verifies and extracts the data files.
+  - inputs.zip.001 to inputs.zip.009: Experiment inputs
+  - parts.json: Archive checksums
+  - unpack.py: Data extraction
 - code
-  - Data.py: Loads expression profiles, drug features and response data.
-  - Model.py: Defines the drug-transcriptome prediction model.
-  - Train.py: Trains the neural prediction branch.
-  - regulatory_similarity_caan.py: Builds the regulation-enhanced cell-line graph.
-  - dual_graph_laplacian.py: Reconstructs drug responses using the cell-line and drug graphs.
-  - fusion.py: Provides utilities for combining and evaluating branch predictions.
-  - run_gdsc.py: Runs training, response reconstruction and prediction integration.
+  - Data.py: Data loading
+  - Model.py: DTAF model
+  - Train.py: DTAF training
+  - regulatory_similarity_caan.py: Regulation-enhanced cell graph
+  - dual_graph_laplacian.py: Dual-graph response completion
+  - fusion.py: Prediction fusion and evaluation
+  - run_gdsc.py: GDSC experiment entry point
 ```
 
 ## Dataset
