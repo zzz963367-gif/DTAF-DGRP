@@ -193,8 +193,7 @@ for split_name, (loader, frame) in split_specs.items():
     frame['pred'] = split_pre
     frame.to_csv(save_path_prediction.replace('.csv', f'_{split_name}_predictions.csv'), index=False)
 
-test_real, test_pre = predict_loader(test_loader)
-
-result_path = save_path_prediction.replace('.csv', '_wo_Ensemble.csv')
-pd.DataFrame({'real': test_real, 'best_predict': test_pre}).to_csv(result_path, index=False)
-print(f'Final test results saved to {result_path}')
+    if split_name == 'test':
+        result_path = save_path_prediction.replace('.csv', '_wo_Ensemble.csv')
+        pd.DataFrame({'real': split_real, 'best_predict': split_pre}).to_csv(result_path, index=False)
+        print(f'Final test results saved to {result_path}')
