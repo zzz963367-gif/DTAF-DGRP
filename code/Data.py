@@ -14,18 +14,7 @@ print("Loading Feature Dictionaries...")
 GRAPH_dict = joblib.load(str(DATA / "Dataset" / 'GRAPH_dict.pkl'))
 RMA_dict = joblib.load(str(DATA / "Dataset" / 'RMA_dict.pkl'))
 MolGNet_dict = joblib.load(str(DATA / "Dataset" / 'MolGNet_dict.pkl'))
-USE_SCGPT_FEATURE = os.environ.get("USE_SCGPT_LATENT", "0") == "1"
-if USE_SCGPT_FEATURE:
-    SCGPT_payload = joblib.load(
-        str(DATA / "unsupported_scgpt.pkl")
-    )
-else:
-    SCGPT_payload = {"cell_feature_by_name": {}, "feature_dim": 512}
 print("Dictionaries Loaded.")
-
-SCGPT_feature_dict = SCGPT_payload["cell_feature_by_name"]
-SCGPT_feature_dim = int(SCGPT_payload["feature_dim"])
-SCGPT_missing_feature = torch.zeros(SCGPT_feature_dim, dtype=torch.float32)
 
 val_set_path = os.environ.get(
     "MODELADV_VAL_CSV",
@@ -44,17 +33,11 @@ train_set_path = os.environ.get("MODELADV_TRAIN_CSV", "").strip()
 
 def _make_graph(cell, drug, ic50):
     graph = GRAPH_dict[drug]
-    scgpt_available = cell in SCGPT_feature_dict
-    scgpt_feature = torch.as_tensor(
-        SCGPT_feature_dict[cell] if scgpt_available else SCGPT_missing_feature,
-        dtype=torch.float32,
-    )
     return Data(
         x=MolGNet_dict[drug],
         edge_index=graph.edge_index,
         edge_attr=graph.edge_attr,
         GEF=torch.tensor(RMA_dict[cell], dtype=torch.float32),
-        SCGPT=scgpt_feature.clone(),
         ic50=torch.tensor([float(ic50)], dtype=torch.float32),
     )
 
@@ -110,8 +93,7 @@ class CollateFn:
         ]
         pyg_batch = Batch.from_data_list(pyg_list, self.follow_batch, self.exclude_keys)
         gene_features = torch.stack([graph.GEF for graph in batch])
-        scgpt_features = torch.stack([graph.SCGPT for graph in batch])
-        return pyg_batch, gene_features, scgpt_features
+        return pyg_batch, gene_features
 
 
 class MyDataSet(Dataset, ABC):

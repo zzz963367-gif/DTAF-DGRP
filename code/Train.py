@@ -94,14 +94,12 @@ for epoch in range(start_epoch, EPOCHS):
     model.train()
     encoder.train()
     train_loss = 0.0
-    for it, (pyg_batch, gene_ft, scgpt_ft) in enumerate(train_loader):
+    for it, (pyg_batch, gene_ft) in enumerate(train_loader):
         pyg_batch = pyg_batch.to(DEVICE)
         gene_ft = gene_ft.to(DEVICE)
-        scgpt_ft = scgpt_ft.to(DEVICE)
         train_gene_ft = corrupt_mrna_for_training(gene_ft)
         prediction = model(
             pyg_batch.x, pyg_batch, encoder(train_gene_ft), train_gene_ft,
-            scgpt_ft,
         )
         loss = loss_func(prediction.view(-1), pyg_batch.ic50.view(-1))
         optimizer.zero_grad()
@@ -114,11 +112,10 @@ for epoch in range(start_epoch, EPOCHS):
     encoder.eval()
     val_loss = 0.0
     with torch.no_grad():
-        for it, (pyg_batch, gene_ft, scgpt_ft) in enumerate(val_loader):
+        for it, (pyg_batch, gene_ft) in enumerate(val_loader):
             pyg_batch = pyg_batch.to(DEVICE)
             gene_ft = gene_ft.to(DEVICE)
-            scgpt_ft = scgpt_ft.to(DEVICE)
-            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft, scgpt_ft)
+            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft)
             val_loss += loss_func(prediction.view(-1), pyg_batch.ic50.view(-1)).item()
     avg_val_loss = val_loss / (it + 1)
 
@@ -153,11 +150,10 @@ encoder.eval()
 def predict_loader(loader):
     real_values, pred_values = [], []
     with torch.no_grad():
-        for pyg_batch, gene_ft, scgpt_ft in loader:
+        for pyg_batch, gene_ft in loader:
             pyg_batch = pyg_batch.to(DEVICE)
             gene_ft = gene_ft.to(DEVICE)
-            scgpt_ft = scgpt_ft.to(DEVICE)
-            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft, scgpt_ft)
+            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft)
             real_values += pyg_batch.ic50.cpu().tolist()
             pred_values += prediction.view(-1).cpu().tolist()
     return real_values, pred_values

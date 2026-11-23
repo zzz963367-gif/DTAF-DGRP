@@ -1,5 +1,4 @@
 import random
-import os
 
 import joblib
 import numpy as np
@@ -16,19 +15,6 @@ from finalmlp_transfer.hybrid_attention import HybridScoreAttention as MultiHead
 features_dim_gene = ldim
 features_dim_raw_gene = 5757
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-DISABLE_SCGPT_LATENT_ADAPTER = (
-    os.environ.get("USE_SCGPT_LATENT", "0") != "1"
-    or os.environ.get("SCGPT_LATENT_ABLATION", "0") == "1"
-    or os.environ.get("MRNA_DENOISING_INPUT", "1") == "1"
-)
-ATOM_AGGREGATION_MODE = os.environ.get("DTAF_ATOM_AGGREGATION", "transcriptome_attention").strip().lower()
-VALID_ATOM_AGGREGATION_MODES = {"mean_pooling", "learned_query", "transcriptome_attention"}
-if ATOM_AGGREGATION_MODE not in VALID_ATOM_AGGREGATION_MODES:
-    raise ValueError(
-        "DTAF_ATOM_AGGREGATION must be one of {}, got {!r}".format(
-            sorted(VALID_ATOM_AGGREGATION_MODES), ATOM_AGGREGATION_MODE
-        )
-    )
 
 
 class SCGPTLatentResidualAdapter(nn.Module):
@@ -45,12 +31,8 @@ class SCGPTLatentResidualAdapter(nn.Module):
         self.latent_norm = nn.LayerNorm(features_dim_gene)
         self.residual_scale = nn.Parameter(torch.tensor(-4.5))
 
-    def forward(self, gene_latent, scgpt_cell_feature):
-        if DISABLE_SCGPT_LATENT_ADAPTER:
-            return gene_latent
-        delta = self.scgpt_proj(scgpt_cell_feature)
-        gate = torch.sigmoid(self.residual_scale)
-        return self.latent_norm(gene_latent + gate * delta)
+    def forward(self, gene_latent, scgpt_cell_feature=None):
+        return gene_latent
 
 
 class CellEncoder(nn.Module):
@@ -70,20 +52,11 @@ class AtomOnlyCrossAttentionLayer(nn.Module):
         self.fc_map_gene = nn.Linear(512, 768)
         self.attention_gene = MultiHeadAttentionLayer(hid_dim=768, n_heads=heads, dropout=0.3, device=DEVICE)
         self.learned_query = nn.Parameter(torch.zeros(1, 1, 768))
-        self.aggregation_mode = ATOM_AGGREGATION_MODE
 
     def forward(self, x, g, z_gene):
         drug_atoms, atom_mask = to_dense_batch(x, g.batch)
-        mode = getattr(self, "aggregation_mode", "transcriptome_attention")
-        if mode == "mean_pooling":
-            weights = atom_mask.unsqueeze(-1).to(drug_atoms.dtype)
-            return (drug_atoms * weights).sum(dim=1) / weights.sum(dim=1).clamp_min(1.0)
-
         mask = torch.unsqueeze(torch.unsqueeze(atom_mask, 1), 1)
-        if mode == "learned_query":
-            query = self.learned_query.expand(drug_atoms.size(0), -1, -1)
-        else:
-            query = F.relu(self.fc_map_gene(z_gene)).unsqueeze(1)
+        query = F.relu(self.fc_map_gene(z_gene)).unsqueeze(1)
         x_att = self.attention_gene(query, drug_atoms, drug_atoms, mask)[0]
         return torch.squeeze(x_att, dim=1)
 
@@ -103,12 +76,8 @@ class Predictor(nn.Module):
         self.atom_attention_fusion = AtomOnlyCrossAttentionLayer(heads=heads)
         self.dense_layers = DenseLayers(heads, fc_layer_num, fc_layer_dim, dropout_rate)
 
-    def adapt_gene_latent(self, gene_latent, scgpt_cell_feature):
-        return self.scgpt_latent_adapter(gene_latent, scgpt_cell_feature)
-
-    def forward(self, x, g, gene_latent, gene_raw, scgpt_cell_feature):
+    def forward(self, x, g, gene_latent, gene_raw, scgpt_cell_feature=None):
         del gene_raw
-        gene_latent = self.adapt_gene_latent(gene_latent, scgpt_cell_feature)
         z_gene = self.cell_encoder(gene_latent)
         x_fused = self.atom_attention_fusion(x, g, z_gene)
         prediction = self.dense_layers(x_fused, z_gene)

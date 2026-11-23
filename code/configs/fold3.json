@@ -19,8 +19,6 @@
     "MKL_NUM_THREADS": "2",
     "MRNA_DENOISING_INPUT": "1",
     "MRNA_DENOISING_MASK_RATE": "0.04",
-    "MRNA_DENOISING_NOISE_STD": "0.005",
-    "USE_SCGPT_LATENT": "0",
-    "DTAF_ATOM_AGGREGATION": "transcriptome_attention"
+    "MRNA_DENOISING_NOISE_STD": "0.005"
   }
 }
