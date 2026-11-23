@@ -1,10 +1,10 @@
-# DTAF-DGRP
+# DTAF-DGRP: Drug–Transcriptome Attention Fusion and Dual-Graph Response Propagation for Cancer Drug Response Prediction
+
+Cancer cell lines can respond differently to the same drug, and screening data cover only a subset of drug–cell line pairs. DTAF-DGRP predicts responses for unmeasured pairs by combining molecular features with patterns in measured responses. The DTAF branch uses a cell line's gene expression profile to weight individual drug atoms through cross-attention that combines dot-product and additive scores. A dual-gated bilinear network then predicts the response from the cell and drug representations. The DGRP branch uses miRNA–mRNA regulatory information to refine cell-line similarities and jointly reconstructs missing responses on cell-line and drug graphs through dual-graph Laplacian completion. Ridge regression fitted on validation predictions combines the two estimates. On the GDSC benchmark, DTAF-DGRP achieved a mean Pearson correlation of 0.9401 and a mean RMSE of 0.04120, outperforming all seven baselines on both metrics. Atom-level analysis also highlighted structures involved in target binding: for JQ1, the triazole ring accounted for 16.1% of the atoms and received 45.6% of the model's attention on average.
 
 ## Framework
 
 ![DTAF-DGRP model framework](framework.png)
-
-DTAF-DGRP predicts cancer cell-line drug response by combining a drug–transcriptome prediction with response reconstruction on cell-line and drug similarity graphs.
 
 ## File list
 
