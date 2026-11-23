@@ -1,4 +1,3 @@
-"""Response graph functions extracted unchanged from the experiment source."""
 import numpy as np
 import pandas as pd
 

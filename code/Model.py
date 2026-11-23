@@ -32,13 +32,6 @@ if ATOM_AGGREGATION_MODE not in VALID_ATOM_AGGREGATION_MODES:
 
 
 class SCGPTLatentResidualAdapter(nn.Module):
-    """Foundation-model residual correction inside the original mRNA route.
-
-    The downstream model still receives one gene-state vector. The adapter
-    injects an mRNA-derived scGPT cell representation as a gated residual on the
-    pretrained DAE latent vector:
-    raw mRNA -> DAE latent + scGPT-derived residual -> z_gene.
-    """
 
     def __init__(self):
         super(SCGPTLatentResidualAdapter, self).__init__()
@@ -71,14 +64,11 @@ class CellEncoder(nn.Module):
 
 
 class AtomOnlyCrossAttentionLayer(nn.Module):
-    """Controlled atom aggregation for the DTAF structural comparison."""
 
     def __init__(self, heads):
         super(AtomOnlyCrossAttentionLayer, self).__init__()
         self.fc_map_gene = nn.Linear(512, 768)
         self.attention_gene = MultiHeadAttentionLayer(hid_dim=768, n_heads=heads, dropout=0.3, device=DEVICE)
-        # Constant initialization avoids changing the random initialization of
-        # downstream layers across the three controlled variants.
         self.learned_query = nn.Parameter(torch.zeros(1, 1, 768))
         self.aggregation_mode = ATOM_AGGREGATION_MODE
 

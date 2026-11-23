@@ -1,4 +1,3 @@
-"""Hard-observation dual-graph harmonic completion; no low-rank factorization."""
 import inspect
 import numpy as np
 from scipy.sparse import csr_matrix, diags

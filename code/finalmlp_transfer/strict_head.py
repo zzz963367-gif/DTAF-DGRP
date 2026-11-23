@@ -1,10 +1,3 @@
-"""DenseLayers replacement only; no input or target normalization.
-
-FinalMLP: Mao et al., AAAI 2023. Uses the attributed bilinear module in model.py.
-All legacy TrainConfig values are accepted unchanged. Per-stream widths follow
-the active original DenseLayers width sequence; dropout stays at the output of
-each stream, matching the original MLP's dropout position and probability.
-"""
 import torch
 from torch import nn
 from .model import FeatureSelection,InteractionAggregation

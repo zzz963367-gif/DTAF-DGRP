@@ -1,4 +1,3 @@
-"""Fuse cell similarities before neighborhood selection, not graph adjacencies."""
 import numpy as np
 import build_modelad_bipartite_graph_diffusion_prior as graph
 
@@ -22,7 +21,6 @@ def construct(prepared,base,cfg,sw,eta):
     response,inds,mapped,_=prepared
     sim=response.copy();block=np.ix_(inds,inds)
     sim[block]=(1-eta)*sim[block]+eta*mapped
-    # All pairs lacking either expression profile keep their original similarity.
     np.fill_diagonal(sim,-np.inf)
     k=min(cfg['k_cell'],len(sim)-1)
     ix=np.argpartition(-sim,kth=k-1,axis=1)[:,:k];rows=np.arange(len(sim))[:,None]

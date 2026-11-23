@@ -75,11 +75,6 @@ print(f'Start training, target epochs: {EPOCHS}, start epoch: {start_epoch}')
 
 
 def corrupt_mrna_for_training(gene_raw):
-    """Training-only mRNA input denoising.
-
-    Randomly masked genes are replaced by the sample-wise expression mean, and a
-    small Gaussian perturbation is added. Validation/test keep clean mRNA.
-    """
     if not USE_MRNA_DENOISING:
         return gene_raw
     if MRNA_MASK_RATE <= 0 and MRNA_NOISE_STD <= 0:

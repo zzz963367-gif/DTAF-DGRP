@@ -1,4 +1,3 @@
-"""Assemble the GDSC input archive and extract it beside this script."""
 import hashlib
 import json
 import shutil

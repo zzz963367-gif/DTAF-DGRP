@@ -1,4 +1,3 @@
-"""Portable entry points for the archived GDSC protocol."""
 import argparse
 import json
 import os

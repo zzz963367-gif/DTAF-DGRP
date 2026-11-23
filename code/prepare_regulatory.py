@@ -1,4 +1,3 @@
-"""Evaluate only the requested miRNA/target-regulatory_residual CAAN, without new controls."""
 import os
 os.environ['OPENBLAS_NUM_THREADS']='2'
 os.environ['MKL_NUM_THREADS']='2'
@@ -59,7 +58,6 @@ for j,m in enumerate(mirnas):
     target[:,j]=yz[:,[gi[g] for g in targets]].mean(1)
     module_rows.append(dict(miRNA=m,target_count=len(targets),genes=';'.join(targets)))
 modules=pd.DataFrame(module_rows);modules.to_csv(O/'module_definitions.csv',index=False)
-# Gene-wise ridge models restricted to curated miRNA regulators.
 from scipy.stats import rankdata
 rx,_,_=standardize(rankdata(X,axis=0))
 ry,_,_=standardize(rankdata(Y,axis=0))
@@ -75,8 +73,6 @@ for gene in target_genes:
     coef=inv@a.T@y
     fitted=a@coef
     leverage=np.sum((a@inv)*a,axis=1)+1.0/len(cells)
-    # Exact leave-one-cell-out residual for ridge with an unpenalized intercept,
-    # conditional on the fixed training-reference rank transformation.
     loo=(y-fitted)/np.maximum(1-leverage,1e-8)
     residual.append(loo)
     fit_records.append(dict(gene=gene,regulators=len(regulators),

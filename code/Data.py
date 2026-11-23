@@ -1,5 +1,4 @@
 from paths import DATA
-"""Original model155-compatible PyG data pipeline for modelad experiments."""
 from abc import ABC
 import os
 

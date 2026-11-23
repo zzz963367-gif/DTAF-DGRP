@@ -1,5 +1,3 @@
-# Adapted from FinalMLP (Mao et al., AAAI 2023), FuxiCTR Authors.
-# Apache-2.0; the original source, license and version hashes are in upstream/.
 import torch
 from torch import nn
 
@@ -47,7 +45,6 @@ class FinalResponseModel(nn.Module):
         super().__init__();self.encoder=encoder;self.cell_encoder=cell_encoder
         self.attention=attention;self.head=head
     def extract(self,rr,dd,data):
-        # Parameter gradients remain enabled; BN statistics and encoder dropout fixed.
         self.encoder.eval();unique,inverse=torch.unique(rr,return_inverse=True)
         cell=self.cell_encoder(self.encoder(data['raw'][unique]))[inverse]
         query=torch.relu(self.attention.fc_map_gene(cell)).unsqueeze(1)
@@ -56,7 +53,6 @@ class FinalResponseModel(nn.Module):
     def forward(self,rr,dd,data):return self.head(self.extract(rr,dd,data))
 
 def self_check():
-    # Compare both values and gradients to the authors' aggregation equations.
     torch.manual_seed(73);m=InteractionAggregation(12,16,2,4).double()
     x=torch.randn(5,12,dtype=torch.double,requires_grad=True);y=torch.randn(5,16,dtype=torch.double,requires_grad=True)
     out=m(x,y);hx=x.view(-1,4,3);hy=y.view(-1,4,4)

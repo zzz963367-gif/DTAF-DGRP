@@ -1,4 +1,3 @@
-"""Score drug atoms for each cell-line query using dot-product and additive attention scores."""
 import torch
 from torch import nn
 from Model_MHA import MultiHeadAttentionLayer as OriginalAttention
@@ -7,7 +6,6 @@ from Model_MHA import MultiHeadAttentionLayer as OriginalAttention
 class HybridScoreAttention(OriginalAttention):
     def __init__(self, hid_dim, n_heads, dropout, device):
         super().__init__(hid_dim, n_heads, dropout, device)
-        # Keep the RNG state seen by all downstream original modules unchanged.
         with torch.random.fork_rng(devices=[]):
             self.add_q = nn.Parameter(torch.empty(n_heads, self.head_dim, self.head_dim))
             self.add_k = nn.Parameter(torch.empty(n_heads, self.head_dim, self.head_dim))
