@@ -22,6 +22,5 @@ elif use_mrna_denoising:
         experiment_name = 'MRNADenoiseAtomGeneOnly_fold0'
 else:
     experiment_name = 'MRNAAtomGeneOnlyNoDenoise_fold0'
-save_path_log = f'./result/{experiment_name}.txt'
 save_path_prediction = f'./result/{experiment_name}.csv'
 save_path_model = f'./result/{experiment_name}.pkl'

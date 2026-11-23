@@ -1,10 +1,4 @@
-import torch
-import random
-import numpy as np
-from abc import ABC
 import torch.nn.functional as F
-from torch.utils.data import Dataset
-from optuna.samplers import TPESampler
 import torch.nn as nn
 from copy import deepcopy
 
@@ -63,34 +57,3 @@ class Decoder(nn.Module):
         result = self.decoder(result)
         output = self.decoder_output(result)
         return output
-
-
-def setup_seed(seed):
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    sampler = TPESampler(seed=seed)
-    return sampler
-
-
-class CollateFn:
-    def __init__(self, follow_batch=None, exclude_keys=None):
-        self.follow_batch = follow_batch
-        self.exclude_keys = exclude_keys
-
-    def __call__(self, batch):
-        batch_data = torch.stack(batch)
-        return batch_data
-
-
-class MyDataSet(Dataset, ABC):
-    def __init__(self, data):
-        self._data = data
-
-    def __getitem__(self, idx):
-        data = self._data[idx]
-        return data
-
-    def __len__(self):
-        return len(self._data)

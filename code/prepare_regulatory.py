@@ -6,7 +6,6 @@ import sys,json
 import numpy as np
 import pandas as pd
 import joblib
-from scipy.sparse import csr_matrix,save_npz
 from threadpoolctl import threadpool_limits
 threadpool_limits(2)
 from paths import DATA,ROOT
@@ -18,29 +17,8 @@ def unit(x):return x/np.maximum(np.linalg.norm(x,axis=1,keepdims=True),1e-12)
 def standardize(x):
     mu=x.mean(0);sd=x.std(0);sd=np.where(sd>1e-8,sd,1)
     return (x-mu)/sd,mu,sd
-def knn(sim,k,t):
-    sim=sim.copy();np.fill_diagonal(sim,-np.inf)
-    ix=np.argsort(-sim,axis=1,kind='stable')[:,:k]
-    scores=np.maximum(np.take_along_axis(sim,ix,axis=1),-.5)/t
-    w=np.exp(scores-scores.max(1,keepdims=True));w/=w.sum(1,keepdims=True)
-    g=csr_matrix((w.ravel(),(np.repeat(np.arange(len(sim)),k),ix.ravel())),shape=sim.shape)
-    assert np.allclose(g.sum(1),1) and np.all(g.diagonal()==0)
-    return g
-def metrics(y,p,drugs):
-    vals=[]
-    for d in np.unique(drugs):
-        mask=drugs==d
-        if mask.sum()>=10 and np.std(y[mask])>1e-10 and np.std(p[mask])>1e-10:
-            vals.append(float(np.corrcoef(y[mask],p[mask])[0,1]))
-    return dict(pcc=float(np.corrcoef(y,p)[0,1]),rmse=float(np.sqrt(np.mean((y-p)**2))),
-                drug_macro_pcc=float(np.mean(vals)),drug_macro_n=len(vals))
-
-total=pd.read_csv(D/'lenient_split_fold_0_dataset.csv',dtype={'Cell':str})
-test=pd.read_csv(D/'lenient_split_test.csv',usecols=['Cell','Drug'],dtype=str)
-test_pairs=set(zip(test.Cell,test.Drug))
 rma={str(k):np.asarray(v,float) for k,v in joblib.load(D/'RMA_dict.pkl').items()}
 cells=pd.read_csv(A/'cohort.csv',dtype=str).Cell.tolist();assert len(cells)==618
-ci={c:i for i,c in enumerate(cells)};drugs=sorted(total.Drug.unique());di={d:i for i,d in enumerate(drugs)}
 mapping=pd.read_csv(A/'mapping_recheck.csv',dtype=str).fillna('')
 sample_for={r.old_cosmic:r.GCT_sample for _,r in mapping.iterrows() if r.old_cosmic}
 gct=pd.read_csv(D/'CCLE_miRNA_20181103.gct',sep='\t',skiprows=2)
@@ -51,11 +29,9 @@ genes=(A/'gene_list_sel.txt').read_text().splitlines();gi={g:i for i,g in enumer
 X=np.stack([gct.loc[mirnas,sample_for[c]].to_numpy(float) for c in cells])
 Y=np.stack([rma[c] for c in cells])
 assert np.isfinite(X).all() and np.isfinite(Y).all()
-xz,xmu,xsd=standardize(X);yz,ymu,ysd=standardize(Y)
-module_rows=[];target=np.zeros((len(cells),len(mirnas)))
-for j,m in enumerate(mirnas):
+module_rows=[]
+for m in mirnas:
     targets=sorted(edges.loc[edges.miRNA.eq(m),'GeneSymbol'].unique())
-    target[:,j]=yz[:,[gi[g] for g in targets]].mean(1)
     module_rows.append(dict(miRNA=m,target_count=len(targets),genes=';'.join(targets)))
 modules=pd.DataFrame(module_rows);modules.to_csv(O/'module_definitions.csv',index=False)
 from scipy.stats import rankdata

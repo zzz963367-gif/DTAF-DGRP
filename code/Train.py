@@ -13,7 +13,7 @@ from Model_DAE import Encoder, Decoder
 from Data import *
 from TrainConfig import *
 
-sampler = setup_seed(seed)
+setup_seed(seed)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 PATIENCE = 25
 USE_MRNA_DENOISING = os.environ.get("MRNA_DENOISING_INPUT", "1") == "1"
@@ -193,7 +193,6 @@ for split_name, (loader, frame) in split_specs.items():
     frame['pred'] = split_pre
     frame.to_csv(save_path_prediction.replace('.csv', f'_{split_name}_predictions.csv'), index=False)
 
-test_real, test_pre = [], []
 test_real, test_pre = predict_loader(test_loader)
 
 result_path = save_path_prediction.replace('.csv', '_wo_Ensemble.csv')

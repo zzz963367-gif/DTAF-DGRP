@@ -59,7 +59,6 @@ python code/run_gdsc.py fuse --fold 0 --output outputs/fold0
 - joblib==1.5.2
 - torch==2.8.0+cu126
 - torch-geometric==2.6.1
-- optuna==4.5.0
 - threadpoolctl==3.6.0
 
 ## Citation

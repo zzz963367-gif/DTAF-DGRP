@@ -5,7 +5,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from optuna.samplers import TPESampler
 from torch_geometric.utils import to_dense_batch
 
 from Model_DAE import ldim
@@ -13,7 +12,6 @@ from finalmlp_transfer.hybrid_attention import HybridScoreAttention as MultiHead
 
 
 features_dim_gene = ldim
-features_dim_raw_gene = 5757
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -89,5 +87,3 @@ def setup_seed(seed):
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
-    sampler = TPESampler(seed=seed)
-    return sampler
