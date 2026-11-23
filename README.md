@@ -25,7 +25,7 @@ DTAF-DGRP predicts cancer cell-line drug response by combining a drug–transcri
 
 ## Dataset
 
-The [data directory](data/) contains the processed inputs used in the GDSC benchmark. After unpacking, `data/Dataset/` contains the response table, five validation splits, the shared test split, expression profiles and molecular features. `data/PreTrain/` contains the pretrained expression encoder parameters. `data/regulatory/` contains the matched cell lines, miRNA–mRNA pairs and regulatory residual features.
+Before training, run `python data/unpack.py` to extract the required data.
 
 ## Run Code
 
