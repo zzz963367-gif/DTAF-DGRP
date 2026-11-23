@@ -1,0 +1,51 @@
+{
+  "fold": 3,
+  "graph": {
+    "val_pcc": 0.9292499102018744,
+    "val_mse": 0.0019718005787581205,
+    "temperature": 0.06,
+    "k_cell": 32,
+    "k_drug": 16,
+    "cell_response_weight": 1.0,
+    "drug_response_weight": 1.0,
+    "cell_mix": 0.25,
+    "cell_alpha": 0.4,
+    "drug_alpha": 0.5,
+    "iterations": 1,
+    "restart": 0.0,
+    "beta": 0.0
+  },
+  "ratio": 0.3,
+  "eta": 0.6,
+  "self_weight": 0.05,
+  "calibration": {
+    "drug_lambda": 0.1,
+    "cell_lambda": 20,
+    "iterations": 1
+  },
+  "inner_seed": 20261027,
+  "inner_folds": 5,
+  "training": {
+    "epochs": 100,
+    "batch_size": 64,
+    "lr": 1e-05,
+    "encoder_lr": 5e-06,
+    "seed": 14946934,
+    "patience": 25,
+    "heads": 8
+  },
+  "environment": {
+    "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "MRNA_DENOISING_INPUT": "1",
+    "MRNA_DENOISING_MASK_RATE": "0.04",
+    "MRNA_DENOISING_NOISE_STD": "0.005",
+    "ZERO_MRNA_MODULE": "0",
+    "USE_SCGPT_LATENT": "0",
+    "SCGPT_LATENT_ABLATION": "0",
+    "DTAF_ATOM_AGGREGATION": "transcriptome_attention",
+    "RESUME_TRAINING_CHECKPOINT": "0"
+  },
+  "protocol": "Five train/validation partitions with a common test set; fixed archived parameters."
+}
