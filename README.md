@@ -6,20 +6,6 @@
 
 DTAF-DGRP predicts cancer cell-line drug response by combining a drug–transcriptome prediction with response reconstruction on cell-line and drug similarity graphs.
 
-## File list
-
-```text
-framework.png                    Model architecture
-code/run_gdsc.py                 GDSC training, response reconstruction and prediction integration
-code/Model.py                    Drug–transcriptome prediction model
-code/finalmlp_transfer/          Hybrid-score attention and dual-gated bilinear prediction head
-code/regulatory_similarity_caan.py  Regulatory enhancement of the cell-line graph
-code/dual_graph_laplacian.py     Joint reconstruction on the two graphs
-code/configs/                    Configuration for each of the five folds
-data/                            Packaged GDSC experiment inputs and unpacking script
-requirements.txt                 Python dependencies
-```
-
 ## Dataset
 
 The [data directory](data/) contains the processed inputs used in the GDSC benchmark. After unpacking, `data/Dataset/` contains the response table, five validation splits, the shared test split, expression profiles and molecular features. `data/PreTrain/` contains the pretrained expression encoder parameters. `data/regulatory/` contains the matched cell lines, miRNA–mRNA pairs and regulatory residual features.
