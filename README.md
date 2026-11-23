@@ -29,6 +29,8 @@ Before training, run `python data/unpack.py` to extract the required data.
 
 ## Run Code
 
+Training requires a CUDA-capable NVIDIA GPU.
+
 ### Step 1: Install dependencies
 
 ```bash
