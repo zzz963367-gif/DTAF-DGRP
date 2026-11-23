@@ -14,8 +14,6 @@ use_mrna_denoising = os.environ.get("MRNA_DENOISING_INPUT", "1") == "1"
 experiment_override = os.environ.get("MODELADV_EXPERIMENT_NAME", "").strip()
 if experiment_override:
     experiment_name = experiment_override
-elif os.environ.get("ZERO_MRNA_MODULE", "0") == "1":
-    experiment_name = 'MRNAGeneOnlyNoMRNA_fold0'
 elif use_mrna_denoising:
     denoise_tag = os.environ.get("MRNA_DENOISING_TAG", "m04n005").strip()
     if denoise_tag:

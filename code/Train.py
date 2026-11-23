@@ -17,7 +17,6 @@ sampler = setup_seed(seed)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 PATIENCE = 25
 USE_MRNA_DENOISING = os.environ.get("MRNA_DENOISING_INPUT", "1") == "1"
-ZERO_MRNA_MODULE = os.environ.get("ZERO_MRNA_MODULE", "0") == "1"
 MRNA_MASK_RATE = float(os.environ.get("MRNA_DENOISING_MASK_RATE", "0.04"))
 MRNA_NOISE_STD = float(os.environ.get("MRNA_DENOISING_NOISE_STD", "0.005"))
 
@@ -91,26 +90,18 @@ def corrupt_mrna_for_training(gene_raw):
     return corrupted
 
 
-def maybe_remove_mrna_module(gene_raw):
-    if ZERO_MRNA_MODULE:
-        return torch.zeros_like(gene_raw)
-    return gene_raw
-
 for epoch in range(start_epoch, EPOCHS):
     model.train()
     encoder.train()
     train_loss = 0.0
-    for it, (pyg_batch, gene_ft, mirna_ft, mirna_available, scgpt_ft) in enumerate(train_loader):
+    for it, (pyg_batch, gene_ft, scgpt_ft) in enumerate(train_loader):
         pyg_batch = pyg_batch.to(DEVICE)
         gene_ft = gene_ft.to(DEVICE)
-        mirna_ft = mirna_ft.to(DEVICE)
-        mirna_available = mirna_available.to(DEVICE)
         scgpt_ft = scgpt_ft.to(DEVICE)
-        gene_ft = maybe_remove_mrna_module(gene_ft)
         train_gene_ft = corrupt_mrna_for_training(gene_ft)
         prediction = model(
             pyg_batch.x, pyg_batch, encoder(train_gene_ft), train_gene_ft,
-            mirna_ft, mirna_available, scgpt_ft,
+            scgpt_ft,
         )
         loss = loss_func(prediction.view(-1), pyg_batch.ic50.view(-1))
         optimizer.zero_grad()
@@ -123,14 +114,11 @@ for epoch in range(start_epoch, EPOCHS):
     encoder.eval()
     val_loss = 0.0
     with torch.no_grad():
-        for it, (pyg_batch, gene_ft, mirna_ft, mirna_available, scgpt_ft) in enumerate(val_loader):
+        for it, (pyg_batch, gene_ft, scgpt_ft) in enumerate(val_loader):
             pyg_batch = pyg_batch.to(DEVICE)
             gene_ft = gene_ft.to(DEVICE)
-            mirna_ft = mirna_ft.to(DEVICE)
-            mirna_available = mirna_available.to(DEVICE)
             scgpt_ft = scgpt_ft.to(DEVICE)
-            gene_ft = maybe_remove_mrna_module(gene_ft)
-            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft, mirna_ft, mirna_available, scgpt_ft)
+            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft, scgpt_ft)
             val_loss += loss_func(prediction.view(-1), pyg_batch.ic50.view(-1)).item()
     avg_val_loss = val_loss / (it + 1)
 
@@ -165,14 +153,11 @@ encoder.eval()
 def predict_loader(loader):
     real_values, pred_values = [], []
     with torch.no_grad():
-        for pyg_batch, gene_ft, mirna_ft, mirna_available, scgpt_ft in loader:
+        for pyg_batch, gene_ft, scgpt_ft in loader:
             pyg_batch = pyg_batch.to(DEVICE)
             gene_ft = gene_ft.to(DEVICE)
-            mirna_ft = mirna_ft.to(DEVICE)
-            mirna_available = mirna_available.to(DEVICE)
             scgpt_ft = scgpt_ft.to(DEVICE)
-            gene_ft = maybe_remove_mrna_module(gene_ft)
-            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft, mirna_ft, mirna_available, scgpt_ft)
+            prediction = model(pyg_batch.x, pyg_batch, encoder(gene_ft), gene_ft, scgpt_ft)
             real_values += pyg_batch.ic50.cpu().tolist()
             pred_values += prediction.view(-1).cpu().tolist()
     return real_values, pred_values

@@ -106,8 +106,8 @@ class Predictor(nn.Module):
     def adapt_gene_latent(self, gene_latent, scgpt_cell_feature):
         return self.scgpt_latent_adapter(gene_latent, scgpt_cell_feature)
 
-    def forward(self, x, g, gene_latent, gene_raw, mirna, mirna_available, scgpt_cell_feature):
-        del gene_raw, mirna, mirna_available
+    def forward(self, x, g, gene_latent, gene_raw, scgpt_cell_feature):
+        del gene_raw
         gene_latent = self.adapt_gene_latent(gene_latent, scgpt_cell_feature)
         z_gene = self.cell_encoder(gene_latent)
         x_fused = self.atom_attention_fusion(x, g, z_gene)

@@ -11,8 +11,6 @@ from DataConfig import *
 
 
 print("Loading Feature Dictionaries...")
-PTREG_miRNA_dict = joblib.load(str(DATA / "Dataset" / 'PTReg_miRNA_expression_dict.pkl'))
-PTREG_graph = joblib.load(str(DATA / "Dataset" / 'PTReg_miRNA_mRNA_graph.pkl'))
 GRAPH_dict = joblib.load(str(DATA / "Dataset" / 'GRAPH_dict.pkl'))
 RMA_dict = joblib.load(str(DATA / "Dataset" / 'RMA_dict.pkl'))
 MolGNet_dict = joblib.load(str(DATA / "Dataset" / 'MolGNet_dict.pkl'))
@@ -25,8 +23,6 @@ else:
     SCGPT_payload = {"cell_feature_by_name": {}, "feature_dim": 512}
 print("Dictionaries Loaded.")
 
-PTREG_miRNA_dim = len(PTREG_graph["mirna_names"])
-PTREG_missing_miRNA = torch.zeros(PTREG_miRNA_dim, dtype=torch.float32)
 SCGPT_feature_dict = SCGPT_payload["cell_feature_by_name"]
 SCGPT_feature_dim = int(SCGPT_payload["feature_dim"])
 SCGPT_missing_feature = torch.zeros(SCGPT_feature_dim, dtype=torch.float32)
@@ -48,12 +44,7 @@ train_set_path = os.environ.get("MODELADV_TRAIN_CSV", "").strip()
 
 def _make_graph(cell, drug, ic50):
     graph = GRAPH_dict[drug]
-    mirna_available = cell in PTREG_miRNA_dict
     scgpt_available = cell in SCGPT_feature_dict
-    mirna_feature = torch.as_tensor(
-        PTREG_miRNA_dict[cell] if mirna_available else PTREG_missing_miRNA,
-        dtype=torch.float32,
-    )
     scgpt_feature = torch.as_tensor(
         SCGPT_feature_dict[cell] if scgpt_available else SCGPT_missing_feature,
         dtype=torch.float32,
@@ -63,8 +54,6 @@ def _make_graph(cell, drug, ic50):
         edge_index=graph.edge_index,
         edge_attr=graph.edge_attr,
         GEF=torch.tensor(RMA_dict[cell], dtype=torch.float32),
-        MIRNA=mirna_feature.clone(),
-        MIRNA_AVAILABLE=torch.tensor([1.0 if mirna_available else 0.0], dtype=torch.float32),
         SCGPT=scgpt_feature.clone(),
         ic50=torch.tensor([float(ic50)], dtype=torch.float32),
     )
@@ -121,10 +110,8 @@ class CollateFn:
         ]
         pyg_batch = Batch.from_data_list(pyg_list, self.follow_batch, self.exclude_keys)
         gene_features = torch.stack([graph.GEF for graph in batch])
-        mirna_features = torch.stack([graph.MIRNA for graph in batch])
-        mirna_available = torch.stack([graph.MIRNA_AVAILABLE for graph in batch])
         scgpt_features = torch.stack([graph.SCGPT for graph in batch])
-        return pyg_batch, gene_features, mirna_features, mirna_available, scgpt_features
+        return pyg_batch, gene_features, scgpt_features
 
 
 class MyDataSet(Dataset, ABC):
